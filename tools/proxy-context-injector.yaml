@@ -1,0 +1,23 @@
+name: "proxy-context-injector"
+description: "Merges short-term context, relevant memory atoms, and team skills into active LLM prompt requests."
+input_schema:
+  type: object
+  properties:
+    messages:
+      type: array
+      items:
+        type: object
+      description: "Array of chat message objects (role and content)."
+    user_id:
+      type: string
+      description: "Unique user identifier."
+    agent_id:
+      type: string
+      description: "Unique agent identifier."
+    max_memory_tokens:
+      type: integer
+      description: "Maximum token allowance allocated for injected memory."
+      default: 2000
+  required:
+    - messages
+    - user_id

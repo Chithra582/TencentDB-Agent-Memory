@@ -1,0 +1,22 @@
+name: "codegraph-indexer"
+description: "Parses repository symbols, callers, callees, and dependency paths to evaluate change impacts."
+input_schema:
+  type: object
+  properties:
+    query_type:
+      type: string
+      enum:
+        - "search_symbol"
+        - "get_callers"
+        - "get_callees"
+        - "impact_analysis"
+      description: "CodeGraph navigation operation."
+    symbol_name:
+      type: string
+      description: "Identifier of target function, class, or method."
+    file_path:
+      type: string
+      description: "Path to file containing target code symbol."
+  required:
+    - query_type
+    - symbol_name

@@ -1,0 +1,22 @@
+spec_version: "0.1.0"
+name: "tencentdb-agent-memory"
+version: "1.0.2"
+description: "Hierarchical multi-agent memory server, knowledge graph, and proxy that unifies chat memory, skills, wikis, and code graphs across agent teams."
+author: "TencentCloud & TencentDB Agent Memory Contributors"
+license: "MIT"
+metadata:
+  domain: "Developer Tools / Multi-Agent Memory, Knowledge Graphs & Zero-Code Proxy"
+  category: "Developer Tools"
+  framework: "TencentDB Agent Memory Core / MemoryHub / MemoryProxy"
+  language: "TypeScript"
+skills:
+  - "hierarchical-chat-memory"
+  - "skill-lifecycle-library"
+  - "knowledge-wiki-codegraph"
+  - "zero-code-proxy-routing"
+tools:
+  - "memory-layer-distiller"
+  - "memory-retrieval-engine"
+  - "skill-manager"
+  - "codegraph-indexer"
+  - "proxy-context-injector"

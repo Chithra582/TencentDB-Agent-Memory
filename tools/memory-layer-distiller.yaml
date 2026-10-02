@@ -1,0 +1,25 @@
+name: "memory-layer-distiller"
+description: "Extracts, classifies, and updates memory atoms, scenario patterns, and persona profiles."
+input_schema:
+  type: object
+  properties:
+    target_layer:
+      type: string
+      enum:
+        - "L1_atom"
+        - "L2_scenario"
+        - "L3_persona"
+      description: "Target cognitive memory layer for distillation."
+    conversation_text:
+      type: string
+      description: "Raw conversational messages or trajectory snippet."
+    user_id:
+      type: string
+      description: "Unique user identifier."
+    agent_id:
+      type: string
+      description: "Unique agent identifier."
+  required:
+    - target_layer
+    - conversation_text
+    - user_id

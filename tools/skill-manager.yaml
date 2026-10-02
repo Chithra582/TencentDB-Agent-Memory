@@ -1,0 +1,31 @@
+name: "skill-manager"
+description: "Registers, versions, validates, and shares reusable agent skills with access control lists."
+input_schema:
+  type: object
+  properties:
+    action:
+      type: string
+      enum:
+        - "register"
+        - "get"
+        - "list"
+        - "share"
+        - "deprecate"
+      description: "Skill management action to perform."
+    skill_name:
+      type: string
+      description: "Identifier of the skill."
+    skill_content:
+      type: string
+      description: "Skill markdown or YAML specification."
+    visibility:
+      type: string
+      enum:
+        - "private"
+        - "team"
+        - "restricted"
+      description: "Access control visibility level."
+      default: "private"
+  required:
+    - action
+    - skill_name

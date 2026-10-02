@@ -1,0 +1,22 @@
+name: "memory-retrieval-engine"
+description: "Performs hybrid semantic vector and keyword search across multi-tenant memory spaces with relevance scoring."
+input_schema:
+  type: object
+  properties:
+    query:
+      type: string
+      description: "Search query or current conversational context."
+    user_id:
+      type: string
+      description: "User identifier for tenant isolation."
+    top_k:
+      type: integer
+      description: "Maximum number of relevant memory items to return."
+      default: 5
+    min_score:
+      type: number
+      description: "Minimum similarity threshold (0.0 to 1.0)."
+      default: 0.65
+  required:
+    - query
+    - user_id
