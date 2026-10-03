@@ -5,7 +5,7 @@ This document explains the internal mechanisms, data lineage, operational bounda
 > **Agent Name:** TencentDB Agent Memory (`tencentdb-agent-memory`)  
 > **Specification:** OpenGAP v0.1.0  
 > **Category / Domain:** Developer Tools / Multi-Agent Memory, Knowledge Graphs & Zero-Code Proxy  
-> **Compliance Standard:** OpenGAP Checkpoint 2 (Explainability & Decision Governance), SOC 2, ISO 27001  
+> **Compliance Standard:** OpenGAP Checkpoint 2 (Explainability & Decision Governance), OWASP LLM Top 10, MITRE ATLAS  
 
 ---
 
@@ -49,7 +49,7 @@ The runtime memory routing, semantic recall, context fitting, and asynchronous k
 [ Continuous Agent Memory State Updated & Persisted ]
 ```
 
-### 2. Scoring Methodology & Rubric Formulations
+### 2. Decision Logic & Routing Formulations
 
 When retrieving candidate memory atoms, skills, or CodeGraph snippets for an active agent turn, the engine evaluates two deterministic scoring formulations:
 
@@ -90,7 +90,7 @@ TencentDB Agent Memory implements a resilient multi-tier fallback architecture:
 
 ### 5. Human-in-the-Loop Governance
 
-TencentDB Agent Memory preserves administrator primacy and human review across all memory operations:
+Human operators retain sovereign authority over the multi-agent execution lifecycle:
 - **Asset Visibility Escalation Approval**: Promoting memory atoms or extracted skills from `private` to `team` or `public` requires explicit approval from the asset owner or administrator.
 - **Memory Inspection & Curation**: System operators can inspect, edit, or purge distorted memory atoms and persona summaries via the web-based MemoryPanel.
 - **Tenant & Role-Based Access Control**: Administrators oversee organizational workspaces, role assignments (Admin, Member), and cryptographic agent key bindings.
@@ -156,15 +156,15 @@ TencentDB Agent Memory preserves administrator primacy and human review across a
 | :--- | :--- | :---: |
 | **How the agent decides** | [How the Agent Decides](#how-the-agent-decides) | **Covered** |
 | - Decision architecture & 5-stage pipeline | Section 1 | Verified |
-| - Memory relevance scoring & distillation formulas | Section 2 | Verified |
+| - Decision logic & routing formulations | Section 2 | Verified |
 | - Thresholding & refusal decision criteria | Section 3 | Verified |
 | - Fallback decision mechanism | Section 4 | Verified |
-| - Human-in-the-loop governance & admin oversight | Section 5 | Verified |
+| - Human-in-the-loop governance & oversight | Section 5 | Verified |
 | **The data it uses** | [The Data It Uses](#the-data-it-uses) | **Covered** |
 | - Ingested dialog turns, code & trajectories | Section 1 | Verified |
 | - Configuration, CodeGraph & tenant ACL schemas | Section 2 | Verified |
 | - Base model lineage & distillation models | Section 3 | Verified |
-| - Data privacy, AES-256 storage & SOC 2/ISO 27001 | Section 4 | Verified |
+| - Data privacy, retention lifecycle & MITRE/OWASP | Section 4 | Verified |
 | **Its limitations** | [Limitations](#limitations) | **Covered** |
 | - Asynchronous distillation lag | Section 1 | Verified |
 | - Memory divergence & stale facts | Section 2 | Verified |
