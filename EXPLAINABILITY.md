@@ -4,7 +4,7 @@ This document explains the internal mechanisms, data lineage, operational bounda
 
 > **Agent Name:** TencentDB Agent Memory (`tencentdb-agent-memory`)  
 > **Specification:** OpenGAP v0.1.0  
-> **Category / Domain:** Developer Tools / Autonomous Memory Architecture & Context Distillation  
+> **Category / Domain:** Developer Tools / Multi-Agent Memory, Knowledge Graphs & Zero-Code Proxy  
 > **Compliance Standard:** OpenGAP Checkpoint 2 (Explainability & Decision Governance), SOC 2, ISO 27001  
 
 ---
@@ -73,31 +73,27 @@ When retrieving candidate memory atoms, skills, or CodeGraph snippets for an act
 
 ### 3. Thresholding & Refusal Decision Criteria
 
-Memory operations and proxy routing enforce strict failure modes and refusal policies:
-
-| Trigger Scenario | Operational Action | Error Code |
-| :--- | :--- | :--- |
-| Injected context exceeds token budget ($> 2,000$ tokens) | Prune lower-layer memories; inject only top-$k$ L3/L2 assets | `ERR_TOKEN_BUDGET_EXCEEDED` |
-| Agent attempts access to `private` or `restricted` assets without ACL | Refuse retrieval; omit protected assets from prompt | `ERR_UNAUTHORIZED_ASSET_ACCESS` |
-| Retrieval similarity score fails cutoff ($S_{\text{memory}} < 0.65$) | Omit memory injection; pass raw request upstream unchanged | `ERR_LOW_SIMILARITY_SCORE` |
-| Inbound payload contains unmasked credentials or API keys | Redact sensitive strings prior to embedding and persistence | `ERR_PII_VIOLATION_DETECTED` |
-| Backend vector database unavailable or timing out (> 250ms) | Bypass retrieval; forward clean prompt directly to foundation model | `ERR_STORAGE_TIMEOUT` |
-| Distillation health index below threshold ($I_{\text{distill}} < 0.70$) | Reject distillation atom; preserve raw turns for manual curation | `ERR_LOW_DISTILLATION_HEALTH` |
+TencentDB Agent Memory deterministically refuses requests that violate memory boundaries or integrity thresholds:
+- **Refusal on Context Window Exhaustion**: Requests where injected context exceeds the token budget ($T_{\text{budget}} > 2000$ tokens) are pruned to top-$k$ assets with code `ERR_TOKEN_BUDGET_EXCEEDED`.
+- **Refusal on Unauthorized Asset Access**: Agent attempts to query `private` or `restricted` assets without verified ACL tenant credentials are deterministically refused with code `ERR_UNAUTHORIZED_ASSET_ACCESS`.
+- **Refusal on Sub-Threshold Similarity**: Candidate memory atoms with composite relevance scores below the cutoff ($S_{\text{memory}} < 0.65$) are rejected from injection with code `ERR_LOW_SIMILARITY_SCORE`.
+- **Refusal on Unmasked Secrets & PII**: Payloads containing raw unmasked credentials, API keys, or sensitive personal identifiers trigger automated rejection prior to embedding with code `ERR_PII_VIOLATION_DETECTED`.
+- **Refusal on Storage Latency Timeout**: Backend vector database lookups exceeding 250ms latency ceiling are rejected from blocking execution with code `ERR_STORAGE_TIMEOUT`.
 
 ### 4. Fallback Decision Mechanism
 
-The agent implements a multi-tier resilience architecture to ensure uninterrupted operation:
-
-- **Tier 1 — Embedded Local Vector Store**: If Tencent Cloud VectorDB or remote MongoDB encounters network timeouts (> 250ms), the proxy automatically falls back to an embedded local SQLite vector store (`sqlite-vec`).
-- **Tier 2 — Lexical BM25 Degradation**: If embedding inference is unavailable or rate-limited, retrieval degrades gracefully to pure BM25 full-text keyword search across memory text fields.
-- **Tier 3 — Transparent Non-Blocking Pass-Through**: If the memory subsystem experiences unrecoverable faults, the MemoryProxy fails open, immediately forwarding agent requests directly to upstream models without downtime.
-- **Model Cascade**: Complex distillation attempts fall back from primary high-capacity LLMs (DeepSeek-V3 / Hunyuan-Turbo) to localized quantized extractors or rule-based NER extractors.
+TencentDB Agent Memory implements a resilient multi-tier fallback architecture:
+- **Embedded SQLite Vector Fallback**: When remote Tencent Cloud VectorDB or MongoDB instances are unreachable or time out (> 250ms), the system falls back to an embedded local SQLite vector store (`sqlite-vec`).
+- **Lexical BM25 Search Fallback**: If dense embedding model inference is unavailable or rate-limited, retrieval degrades gracefully to pure lexical BM25 keyword matching over memory text columns.
+- **Fail-Open Pass-Through Fallback**: If the memory subsystem experiences unrecoverable faults, the proxy fails open, directly forwarding requests upstream to maintain uninterrupted agent execution.
+- **Model Fallback Cascade**: Hierarchical knowledge extraction and persona distillation default to `gemini-2.0-flash` with automatic failover to `gpt-4o` and `claude-3-5-sonnet`.
 
 ### 5. Human-in-the-Loop Governance
 
-- **Asset Visibility Escalation**: Promoting individual skills or memory items from `private` to `team` or `public` requires manual approval by the asset owner or team administrator.
-- **Memory Review & Editing**: Operators can inspect, edit, or purge distorted memory atoms and persona summaries via the web-based MemoryPanel.
-- **Tenant & Role Management**: System administrators oversee organizational workspaces, role assignments (Admin, Member), and agent bindings.
+TencentDB Agent Memory preserves administrator primacy and human review across all memory operations:
+- **Asset Visibility Escalation Approval**: Promoting memory atoms or extracted skills from `private` to `team` or `public` requires explicit approval from the asset owner or administrator.
+- **Memory Inspection & Curation**: System operators can inspect, edit, or purge distorted memory atoms and persona summaries via the web-based MemoryPanel.
+- **Tenant & Role-Based Access Control**: Administrators oversee organizational workspaces, role assignments (Admin, Member), and cryptographic agent key bindings.
 
 ---
 
@@ -160,15 +156,15 @@ The agent implements a multi-tier resilience architecture to ensure uninterrupte
 | :--- | :--- | :---: |
 | **How the agent decides** | [How the Agent Decides](#how-the-agent-decides) | **Covered** |
 | - Decision architecture & 5-stage pipeline | Section 1 | Verified |
-| - Scoring methodology & rubric formulations ($S_{\text{memory}}$, $I_{\text{distill}}$) | Section 2 | Verified |
-| - Thresholding, refusal decision criteria & error codes | Section 3 | Verified |
-| - Fallback decision mechanism & multi-tier fallbacks | Section 4 | Verified |
-| - Human-in-the-loop & governance | Section 5 | Verified |
+| - Memory relevance scoring & distillation formulas | Section 2 | Verified |
+| - Thresholding & refusal decision criteria | Section 3 | Verified |
+| - Fallback decision mechanism | Section 4 | Verified |
+| - Human-in-the-loop governance & admin oversight | Section 5 | Verified |
 | **The data it uses** | [The Data It Uses](#the-data-it-uses) | **Covered** |
-| - Ingested dialog, code & trajectory data | Section 1 | Verified |
-| - Configuration, CodeGraph & tenant ACL data | Section 2 | Verified |
+| - Ingested dialog turns, code & trajectories | Section 1 | Verified |
+| - Configuration, CodeGraph & tenant ACL schemas | Section 2 | Verified |
 | - Base model lineage & distillation models | Section 3 | Verified |
-| - Data privacy, storage, encryption & retention | Section 4 | Verified |
+| - Data privacy, AES-256 storage & SOC 2/ISO 27001 | Section 4 | Verified |
 | **Its limitations** | [Limitations](#limitations) | **Covered** |
 | - Asynchronous distillation lag | Section 1 | Verified |
 | - Memory divergence & stale facts | Section 2 | Verified |
