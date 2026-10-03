@@ -99,8 +99,11 @@ Human operators retain sovereign authority over the multi-agent execution lifecy
 
 ## The Data It Uses
 
+TencentDB Agent Memory operates under strict principles of data minimization, environment isolation, and privacy protection.
+
 ### 1. Ingested Input Data
 
+The framework processes only operational data necessary to manage agent memory:
 - **Turn-by-Turn Dialog**: Inbound agent conversation turns, system prompts, tool execution records, and user queries.
 - **Extracted Code & Documentation**: Source code files, AST symbol trees, architectural Markdown documents, and API runbooks.
 - **Agent Action Trajectories**: Tool parameters, exit codes, and intermediate reasoning steps captured during complex multi-step workflows.
@@ -119,14 +122,16 @@ Human operators retain sovereign authority over the multi-agent execution lifecy
 
 ### 4. Data Privacy, Storage, and Retention
 
-- **Strict PII Redaction**: Automatic regex and NER filters scrub access tokens, private keys, credit cards, and personal contact info before storage.
-- **Tenant Data Isolation**: Multi-tenant database schemas partition memories by `tenant_id`, `team_id`, and `user_id`.
-- **Configurable Retention Windows**: L0 raw conversational logs are automatically aged out after 30 days; distilled L1 atoms and L3 personas persist indefinitely unless explicitly deleted by users.
-- **Encryption at Rest & in Transit**: TLS 1.3 encryption across all proxy endpoints; AES-256 encryption for persisted memory tables and vector indices.
+- **OWASP LLM & MITRE ATLAS Hardened**: Defended against indirect prompt injection in stored dialog turns, unauthorized cross-tenant memory access, and API key leakage.
+- **Tenant Data Isolation**: Multi-tenant database schemas partition memories by `tenant_id`, `team_id`, and `user_id` with cryptographic salt validation.
+- **Automated Secret Scrubbing**: Automatic regex and NER filters scrub access tokens, private keys, credit cards, and personal contact info before storage.
+- **Zero Commercial Monetization**: Stored memory atoms, code graphs, and user interaction trajectories are never used for commercial foundation model training.
 
 ---
 
 ## Limitations
+
+Understanding the operational boundaries and technical constraints of TencentDB Agent Memory is essential for effective deployment.
 
 ### 1. Asynchronous Distillation Lag
 - **Limitation**: Distillation of raw conversation turns into L1 atoms runs asynchronously, meaning immediate follow-up questions within seconds may rely on short-term context rather than newly distilled memory.
